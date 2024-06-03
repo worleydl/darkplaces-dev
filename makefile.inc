@@ -204,7 +204,7 @@ LDFLAGS_RELEASE=$(OPTIM_RELEASE)                       -DVCREVISION=$(VCREVISION
 
 LDFLAGS_UNIXCOMMON=-lm $(LIB_ODE) $(LIB_Z) $(LIB_JPEG) $(LIB_CRYPTO) $(LIB_CRYPTO_RIJNDAEL) $(LIB_SND_XMP)
 LDFLAGS_UNIXSV_PRELOAD=-lz -ljpeg -lpng -lcurl
-LDFLAGS_UNIXSDL_PRELOAD=-lz -ljpeg -lpng -logg -ltheora -lvorbis -lvorbisenc -lvorbisfile -lcurl -lxmp
+LDFLAGS_UNIXSDL_PRELOAD=-lz -ljpeg -lpng -logg -ltheora -lvorbis -lvorbisenc -lvorbisfile ../uwp-deps/libcurl-x64.dll -lxmp
 CFLAGS_UNIX_PRELOAD=-DPREFER_PRELOAD
 
 LDFLAGS_UNIXSDL=$(SDL_LIBS) #-lGLESv2
