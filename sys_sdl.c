@@ -2,6 +2,10 @@
  * Include this BEFORE darkplaces.h because it breaks wrapping
  * _Static_assert. Cloudwalk has no idea how or why so don't ask.
  */
+
+// Needed for external launch
+#define SDLMAIN_DECLSPEC __declspec(dllexport)
+
 #include <SDL.h>
 
 #include "darkplaces.h"
