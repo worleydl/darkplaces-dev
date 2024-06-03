@@ -2150,7 +2150,12 @@ static void FS_Init_Dir (void)
 	// Overrides the system supplied base directory (under GAMENAME)
 // COMMANDLINEOPTION: Filesystem: -basedir <path> chooses what base directory the game data is in, inside this there should be a data directory for the game (for example id1)
 	i = Sys_CheckParm ("-basedir");
-	if (i && i < sys.argc-1)
+	if (true) // TODO: Flag for uwp
+	{
+		dp_strlcpy(fs_basedir, "E:\\quake", sizeof(fs_basedir));
+
+	}
+	else if (i && i < sys.argc-1)
 	{
 		dp_strlcpy (fs_basedir, sys.argv[i+1], sizeof (fs_basedir));
 		i = (int)strlen (fs_basedir);
