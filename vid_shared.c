@@ -83,7 +83,7 @@ cvar_t joy_xinputavailable = {CF_CLIENT | CF_READONLY, "joy_xinputavailable", "0
 #endif
 cvar_t joy_active = {CF_CLIENT | CF_READONLY, "joy_active", "0", "indicates that a joystick is active (detected and enabled)"};
 cvar_t joy_detected = {CF_CLIENT | CF_READONLY, "joy_detected", "0", "number of joysticks detected by engine"};
-cvar_t joy_enable = {CF_CLIENT | CF_ARCHIVE, "joy_enable", "0", "enables joystick support"};
+cvar_t joy_enable = {CF_CLIENT | CF_ARCHIVE, "joy_enable", "1", "enables joystick support"};
 cvar_t joy_index = {CF_CLIENT, "joy_index", "0", "selects which joystick to use if you have multiple (0 uses the first controller, 1 uses the second, ...)"};
 cvar_t joy_axisforward = {CF_CLIENT, "joy_axisforward", "1", "which joystick axis to query for forward/backward movement"};
 cvar_t joy_axisside = {CF_CLIENT, "joy_axisside", "0", "which joystick axis to query for right/left movement"};
@@ -1262,6 +1262,7 @@ static dllfunction_t xinputdllfuncs[] =
 };
 static const char* xinputdllnames [] =
 {
+	"XInputUap.dll",
 	"xinput1_3.dll",
 	"xinput1_2.dll",
 	"xinput1_1.dll",
