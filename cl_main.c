@@ -29,6 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "snd_main.h"
 #include "cdaudio.h"
 
+extern __declspec(dllimport) float uwp_GetRefreshRate(void);
+
 // we need to declare some mouse variables here, because the menu system
 // references them even when on a unix system.
 
@@ -2853,11 +2855,12 @@ double CL_Frame (double time)
 				clframetime = cl.realframetime = cl_timer;
 			else
 				// networking assumes at least 10fps
-				clframetime = cl.realframetime = bound(cl_timer, 1 / maxfps, 0.1);
-
+				clframetime = cl.realframetime = bound(cl_timer, 1 / uwp_GetRefreshRate(), 0.1);
+#ifdef UWP_TODO
 			// on some legacy systems, we need to sleep to keep input responsive
 			if (cl_maxfps_alwayssleep.value > 0 && !cls.timedemo)
 				Sys_Sleep(min(cl_maxfps_alwayssleep.value / 1000, 0.05));
+#endif
 		}
 
 		// apply slowmo scaling
