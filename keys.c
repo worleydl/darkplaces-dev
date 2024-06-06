@@ -25,6 +25,8 @@
 #include "utf8lib.h"
 #include "csprogs.h"
 
+#include "SDL_GameController.h"
+
 cvar_t con_closeontoggleconsole = {CF_CLIENT | CF_ARCHIVE, "con_closeontoggleconsole","1", "allows toggleconsole binds to close the console as well; when set to 2, this even works when not at the start of the line in console input; when set to 3, this works even if the toggleconsole key is the color tag"};
 
 /*
@@ -333,6 +335,9 @@ typedef struct keyname_s
 }
 keyname_t;
 
+
+#define JOYPREFIX "Joy "
+
 static const keyname_t   keynames[] = {
 	{"TAB", K_TAB},
 	{"ENTER", K_ENTER},
@@ -629,8 +634,47 @@ static const keyname_t   keynames[] = {
 	{"MIDINOTE126", K_MIDINOTE126},
 	{"MIDINOTE127", K_MIDINOTE127},
 
+	// Game Controller Binds (String to local keyenum val)
+	// These must match the sdl_gc_bindnames format
+	{JOYPREFIX "A", K_SDL_CONTROLLER_BUTTON_A},
+	{JOYPREFIX "B", K_SDL_CONTROLLER_BUTTON_B},
+	{JOYPREFIX "X", K_SDL_CONTROLLER_BUTTON_X},
+	{JOYPREFIX "Y", K_SDL_CONTROLLER_BUTTON_Y},
+	{JOYPREFIX "Back", K_SDL_CONTROLLER_BUTTON_BACK},
+	{JOYPREFIX "Guide", K_SDL_CONTROLLER_BUTTON_GUIDE},
+	{JOYPREFIX "Start", K_SDL_CONTROLLER_BUTTON_START},
+	{JOYPREFIX "L-Stick", K_SDL_CONTROLLER_BUTTON_LEFTSTICK},
+	{JOYPREFIX "R-Stick", K_SDL_CONTROLLER_BUTTON_RIGHTSTICK},
+	{JOYPREFIX "L-Shoulder", K_SDL_CONTROLLER_BUTTON_LEFTSHOULDER},
+	{JOYPREFIX "R-Shoulder", K_SDL_CONTROLLER_BUTTON_RIGHTSHOULDER},
+	{JOYPREFIX "DPUP", K_SDL_CONTROLLER_BUTTON_DPAD_UP},
+	{JOYPREFIX "DPDOWN", K_SDL_CONTROLLER_BUTTON_DPAD_DOWN},
+	{JOYPREFIX "DPLEFT", K_SDL_CONTROLLER_BUTTON_DPAD_LEFT},
+	{JOYPREFIX "DPRIGHT", K_SDL_CONTROLLER_BUTTON_DPAD_RIGHT},
+
 	{NULL, 0}
 };
+
+// Need a prefix so A/B/X/Y don't overlap typical keyboard bindings
+// Could call SDL_GameControllerGetStringForButton and use sprintf, this was my lazy method as it gives more flexibility for custom naming
+static const char* sdl_gc_bindnames[] = {
+	JOYPREFIX "A", // Order matters, must line up with SDL_GameController definitions
+	JOYPREFIX "B",
+	JOYPREFIX "X",
+	JOYPREFIX "Y",
+	JOYPREFIX "Back",
+	JOYPREFIX "Guide",
+	JOYPREFIX "Start",
+	JOYPREFIX "L-Stick",
+	JOYPREFIX "R-Stick",
+	JOYPREFIX "L-Shoulder",
+	JOYPREFIX "R-Shoulder",
+	JOYPREFIX "DPUP",
+	JOYPREFIX "DPDOWN",
+	JOYPREFIX "DPLEFT",
+	JOYPREFIX "DPRIGHT"
+};
+
 
 /*
 ==============================================================================
@@ -1363,7 +1407,15 @@ Key_KeynumToString (int keynum, char *tinystr, size_t tinystrlength)
 	if (keynum < 0)
 		return "<KEY NOT FOUND>";
 
-	// search overrides first, because some characters are special
+	// Check for game controller events
+	if (keynum >= K_SDL_CONTROLLER_BUTTON_A)
+	{
+		// Need a prefix to avoid collisions with regular keyboard binds (ABXY overlap)
+		//return SDL_GameControllerGetStringForButton((SDL_GameControllerButton)(keynum - K_SDL_CONTROLLER_BUTTON_A)); // The minus resets back to codes SDL understands 
+		return sdl_gc_bindnames[keynum - K_SDL_CONTROLLER_BUTTON_A];  // These add Joy prefix
+	}
+
+	// then search overrides, because some characters are special
 	for (kn = keynames; kn->name; kn++)
 		if (keynum == kn->keynum)
 			return kn->name;

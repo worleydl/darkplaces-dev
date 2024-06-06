@@ -822,57 +822,17 @@ void VID_Shared_BuildJoyState_Finish(vid_joystate_t *joystate)
 	joystate->button[35] = r < 0.0f;
 }
 
-static void VID_KeyEventForButton(qbool oldbutton, qbool newbutton, int key, double *timer)
-{
-	if (oldbutton)
-	{
-		if (newbutton)
-		{
-			if (host.realtime >= *timer)
-			{
-				Key_Event(key, 0, true);
-				*timer = host.realtime + 0.1;
-			}
-		}
-		else
-		{
-			Key_Event(key, 0, false);
-			*timer = 0;
-		}
-	}
-	else
-	{
-		if (newbutton)
-		{
-			Key_Event(key, 0, true);
-			*timer = host.realtime + 0.5;
-		}
-	}
-}
-
 #if MAXJOYBUTTON != 36
 #error this code must be updated if MAXJOYBUTTON changes!
 #endif
-static int joybuttonkey[MAXJOYBUTTON][2] =
-{
-	{K_JOY1, K_ENTER}, {K_JOY2, 0}, {K_JOY3, 0}, {K_JOY4, 0}, {K_JOY5, 0}, {K_JOY6, 0}, {K_JOY7, 0}, {K_JOY8, 0}, {K_JOY9, 0}, {K_JOY10, 0}, {K_JOY11, 0}, {K_JOY12, 0}, {K_JOY13, 0}, {K_JOY14, 0}, {K_JOY15, 0}, {K_JOY16, 0},
-	{K_AUX1, 0}, {K_AUX2, 0}, {K_AUX3, 0}, {K_AUX4, 0}, {K_AUX5, 0}, {K_AUX6, 0}, {K_AUX7, 0}, {K_AUX8, 0}, {K_AUX9, 0}, {K_AUX10, 0}, {K_AUX11, 0}, {K_AUX12, 0}, {K_AUX13, 0}, {K_AUX14, 0}, {K_AUX15, 0}, {K_AUX16, 0},
-	{K_JOY_UP, K_UPARROW}, {K_JOY_DOWN, K_DOWNARROW}, {K_JOY_RIGHT, K_RIGHTARROW}, {K_JOY_LEFT, K_LEFTARROW},
-};
 
 double vid_joybuttontimer[MAXJOYBUTTON];
 void VID_ApplyJoyState(vid_joystate_t *joystate)
 {
-	int j;
-	int c = joy_axiskeyevents.integer != 0;
-	// emit key events for buttons
-	for (j = 0;j < MAXJOYBUTTON;j++)
-		VID_KeyEventForButton(vid_joystate.button[j] != 0, joystate->button[j] != 0, joybuttonkey[j][c], &vid_joybuttontimer[j]);
-
 	// axes
-	cl.cmd.forwardmove += VID_JoyState_GetAxis(joystate, joy_axisforward.integer, joy_sensitivityforward.value, joy_deadzoneforward.value) * cl_forwardspeed.value;
-	cl.cmd.sidemove    += VID_JoyState_GetAxis(joystate, joy_axisside.integer, joy_sensitivityside.value, joy_deadzoneside.value) * cl_sidespeed.value;
-	cl.cmd.upmove      += VID_JoyState_GetAxis(joystate, joy_axisup.integer, joy_sensitivityup.value, joy_deadzoneup.value) * cl_upspeed.value;
+	cl.cmd.forwardmove += VID_JoyState_GetAxis(joystate, joy_axisforward.integer, joy_sensitivityforward.value, joy_deadzoneforward.value) * cl.realframetime * cl_forwardspeed.value;
+	cl.cmd.sidemove    += VID_JoyState_GetAxis(joystate, joy_axisside.integer, joy_sensitivityside.value, joy_deadzoneside.value) * cl.realframetime * cl_sidespeed.value;
+	cl.cmd.upmove      += VID_JoyState_GetAxis(joystate, joy_axisup.integer, joy_sensitivityup.value, joy_deadzoneup.value) * cl.realframetime * cl_upspeed.value;
 	cl.viewangles[0]   += VID_JoyState_GetAxis(joystate, joy_axispitch.integer, joy_sensitivitypitch.value, joy_deadzonepitch.value) * cl.realframetime * cl_pitchspeed.value;
 	cl.viewangles[1]   += VID_JoyState_GetAxis(joystate, joy_axisyaw.integer, joy_sensitivityyaw.value, joy_deadzoneyaw.value) * cl.realframetime * cl_yawspeed.value;
 	//cl.viewangles[2]   += VID_JoyState_GetAxis(joystate, joy_axisroll.integer, joy_sensitivityroll.value, joy_deadzoneroll.value) * cl.realframetime * cl_rollspeed.value;

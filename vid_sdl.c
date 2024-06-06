@@ -86,6 +86,30 @@ static SDL_Window *window;
 #define SDLK_PERCENT '%'
 #endif
 
+static int JoyMapKey(unsigned int sdlkey)
+{
+	// Mapping to local key definitions
+	switch(sdlkey)
+	{
+		default: return sdlkey; // shouldn't ever hit this
+		case SDL_CONTROLLER_BUTTON_A: return K_SDL_CONTROLLER_BUTTON_A;
+		case SDL_CONTROLLER_BUTTON_B: return K_SDL_CONTROLLER_BUTTON_B;
+		case SDL_CONTROLLER_BUTTON_X: return K_SDL_CONTROLLER_BUTTON_X;
+		case SDL_CONTROLLER_BUTTON_Y: return K_SDL_CONTROLLER_BUTTON_Y;
+		case SDL_CONTROLLER_BUTTON_BACK: return K_SDL_CONTROLLER_BUTTON_BACK;
+		case SDL_CONTROLLER_BUTTON_GUIDE: return K_SDL_CONTROLLER_BUTTON_GUIDE;
+		case SDL_CONTROLLER_BUTTON_START: return K_SDL_CONTROLLER_BUTTON_START;
+		case SDL_CONTROLLER_BUTTON_LEFTSTICK: return K_SDL_CONTROLLER_BUTTON_LEFTSTICK;
+		case SDL_CONTROLLER_BUTTON_RIGHTSTICK: return K_SDL_CONTROLLER_BUTTON_RIGHTSTICK;
+		case SDL_CONTROLLER_BUTTON_LEFTSHOULDER: return K_SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
+		case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER: return K_SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
+		case SDL_CONTROLLER_BUTTON_DPAD_UP: return K_SDL_CONTROLLER_BUTTON_DPAD_UP;
+		case SDL_CONTROLLER_BUTTON_DPAD_DOWN: return K_SDL_CONTROLLER_BUTTON_DPAD_DOWN;
+		case SDL_CONTROLLER_BUTTON_DPAD_LEFT: return K_SDL_CONTROLLER_BUTTON_DPAD_LEFT;
+		case SDL_CONTROLLER_BUTTON_DPAD_RIGHT: return K_SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+	}
+}
+
 static int MapKey( unsigned int sdlkey )
 {
 	switch(sdlkey)
@@ -1122,6 +1146,13 @@ void Sys_SDL_HandleEvents(void)
 					Key_Event( K_MWHEELDOWN, 0, false );
 				}
 				break;
+			case SDL_CONTROLLERBUTTONDOWN:
+			case SDL_CONTROLLERBUTTONUP:
+				keycode = JoyMapKey(event.cbutton.button);
+				Key_Event(keycode, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
+				break;
+			case SDL_CONTROLLERAXISMOTION:
+				// TODO: Maybe later, using dpad for now.
 			case SDL_JOYBUTTONDOWN:
 			case SDL_JOYBUTTONUP:
 			case SDL_JOYAXISMOTION:
@@ -1587,8 +1618,8 @@ void VID_Init (void)
 
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		Sys_Error ("Failed to init SDL video subsystem: %s", SDL_GetError());
-	if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) < 0)
-		Con_Printf(CON_ERROR "Failed to init SDL joystick subsystem: %s\n", SDL_GetError());
+	if (SDL_InitSubSystem(SDL_INIT_GAMECONTROLLER) < 0)
+		Con_Printf(CON_ERROR "Failed to init SDL game controller subsystem: %s\n", SDL_GetError());
 
 	SDL_GetVersion(&version);
 	Con_Printf("Linked against SDL version %d.%d.%d\n"
