@@ -20,6 +20,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <SDL.h>
 #include <stdio.h>
 
+#include "menu.h"
+
 #include "quakedef.h"
 #include "image.h"
 #include "utf8lib.h"
@@ -33,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #if (MAC_OS_X_VERSION_MIN_REQUIRED < 120000)
 	#define IOMainPort IOMasterPort
 #endif
+
 static cvar_t apple_mouse_noaccel = {CF_CLIENT | CF_ARCHIVE, "apple_mouse_noaccel", "1", "disables mouse acceleration while DarkPlaces is active"};
 static qbool vid_usingnoaccel;
 static double originalMouseSpeed = -1.0;
@@ -1149,8 +1152,53 @@ void Sys_SDL_HandleEvents(void)
 			case SDL_CONTROLLERBUTTONDOWN:
 			case SDL_CONTROLLERBUTTONUP:
 				keycode = JoyMapKey(event.cbutton.button);
-				Key_Event(keycode, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
-				break;
+
+				// Mappings active for menus only
+				if ( (key_dest == key_menu || key_dest == key_menu_grabbed) && !bind_grab)
+				{
+					switch(keycode)
+					{
+						case K_SDL_CONTROLLER_BUTTON_DPAD_UP:
+							Key_Event(K_UPARROW, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
+							break;
+
+						case K_SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+							Key_Event(K_DOWNARROW, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
+							break;
+
+						case K_SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+							Key_Event(K_LEFTARROW, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
+							break;
+
+						case K_SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+							Key_Event(K_RIGHTARROW, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
+							break;
+
+						// A/B usually bind to enter/escape, for exit menu then bind to Y/N
+						case K_SDL_CONTROLLER_BUTTON_A:
+							Key_Event(m_state == m_quit ? Key_StringToKeynum("Y") : K_ENTER, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
+							break;
+
+						case K_SDL_CONTROLLER_BUTTON_B:
+							// TODO: this is still triggering an escape press for bindgrab when a user tries to bind b.  the bind is saved but it's annoying
+							Key_Event(m_state == m_quit ? Key_StringToKeynum("N") : K_ESCAPE, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
+							break;
+
+					}
+				} else {
+					Key_Event(keycode, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
+				}
+
+				// Special mappings always enabled in game/menu
+				switch(keycode)
+				{
+					case K_SDL_CONTROLLER_BUTTON_START:
+						Key_Event(K_ESCAPE, 0, event.type == SDL_CONTROLLERBUTTONDOWN);
+						break;
+				}
+
+
+				break; // break for controller buttons
 			case SDL_CONTROLLERAXISMOTION:
 				// TODO: Maybe later, using dpad for now.
 			case SDL_JOYBUTTONDOWN:

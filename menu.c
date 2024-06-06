@@ -2543,7 +2543,7 @@ static void M_DefaultBinds (void)
 
 
 static int		keys_cursor;
-static int		bind_grab;
+int		bind_grab; // Moved to extern def in header
 
 void M_Menu_Keys_f(cmd_state_t *cmd)
 {
