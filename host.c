@@ -703,9 +703,7 @@ void Host_Main(void)
 		sleeptime = Host_Frame(time);
 		++host.framecount;
 		sleeptime -= Sys_DirtyTime() - host.dirtytime; // execution time
-#ifdef UWP_TODO
 		host.sleeptime = Sys_Sleep(sleeptime);
-#endif
 	}
 
 	Host_Shutdown();

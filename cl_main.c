@@ -2856,11 +2856,9 @@ double CL_Frame (double time)
 			else
 				// networking assumes at least 10fps
 				clframetime = cl.realframetime = bound(cl_timer, 1 / uwp_GetRefreshRate(), 0.1);
-#ifdef UWP_TODO
 			// on some legacy systems, we need to sleep to keep input responsive
 			if (cl_maxfps_alwayssleep.value > 0 && !cls.timedemo)
 				Sys_Sleep(min(cl_maxfps_alwayssleep.value / 1000, 0.05));
-#endif
 		}
 
 		// apply slowmo scaling
